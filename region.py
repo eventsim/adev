@@ -191,7 +191,7 @@ class UniqueRegion(Region):
 				elif ix == 0 and iy > 0 and iy < self.region.shape[0]-1 : 
 					perception = functools.reduce(operator.iconcat, self.region[iy-1:iy+2, ix:ix+2].tolist(), [])
 				elif iy == 0 and ix > 0 and ix < self.region.shape[1]-1 : 
-					perception = functools.reduce(operator.iconcat, self.region[iy:3, ix-1:ix+1].tolist(), [])
+					perception = functools.reduce(operator.iconcat, self.region[iy:2, ix-1:ix+2].tolist(), [])
 				elif ix == self.region.shape[1]-1 and iy > 0 and iy < self.region.shape[0]-1 : 
 					perception = functools.reduce(operator.iconcat, self.region[iy-1:iy+1, ix-1:ix+1].tolist(), [])
 				elif iy == self.region.shape[0]-1 and ix > 0 and ix < self.region.shape[1]-1 : 
