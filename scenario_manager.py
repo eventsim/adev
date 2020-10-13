@@ -15,6 +15,12 @@ class ScenarioManager(object):
 		with open(self.scenario_path, 'w') as f:
 			yaml.dump(self.scenario, f)
 
+	def get_regions(self):
+		return self.scenario['scenario']['regions']
+
+	def get_agents(self):
+		return self.scenario['scenario']['agents']
+
 	def get_example_scenario(self):
 		self.scenario = {'sceVersion': 'sce/v1',\
 						 'sceType': 'EvacSim',\
