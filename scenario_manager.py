@@ -7,10 +7,22 @@ class ScenarioManager(object):
 
 	def load(self, _path):
 		self.scenario_path = _path
+		with open(_path) as f:
+			self.scenario = yaml.load(f.read(), Loader=yaml.CLoader)
+			
 
 	def save(self):
 		with open(self.scenario_path, 'w') as f:
 			yaml.dump(self.scenario, f)
+
+	def get_regions(self):
+		return self.scenario['scenario']['regions']
+
+	def get_agents(self):
+		return self.scenario['scenario']['agents']
+
+	def get_config(self):
+		return self.scenario['config']
 
 	def get_example_scenario(self):
 		self.scenario = {'sceVersion': 'sce/v1',\
@@ -19,21 +31,22 @@ class ScenarioManager(object):
 						 	'regions':[\
 						 			{\
 							 			'rid':0,\
-							 			'regionInfo'  :{\
 							 			'regionSize':[5, 5],\
-							 			'entry_points':{0:[4, 2]},\
-							 			'exit_points':{0:[0, 4]},}, \
-							 			'modelName':'Region01',\
-							 			'engineName':'sname',\
-							 			'instance_time':0, \
-							 			'destroy_time':30,\
+							 			'entries':[{'en_id':0, 'coord':[4, 4]}],\
+							 			'exits' :[{'ex_id':0, 'coord':[0, 4]}], \
 						 			},\
 						 		],\
 						 	'agents':[\
-						 				{'region_id':0, 'agent_id':0, "agent_pos":[0, 0], "agent_type":"Normal"},\
-						 				{'region_id':0, 'agent_id':1, "agent_pos":[0, 0], "agent_type":"Normal"}
+						 				{'rid':0, 'aid':0, "coord":[0, 0], "type":"Normal", "strategy":"OBJ_SMART"},\
+						 				{'rid':0, 'aid':1, "coord":[0, 0], "type":"Normal", "strategy":"OBJ_GREED"}
 						 			],\
 						 	},\
+						 'config':{\
+						 		'simName':'evacuation',\
+						 		'engineName':'sname',\
+					 			'instance_time':0, \
+					 			'destroy_time':30,\
+						 	}
 						 }
 						 
 		return yaml.dump(self.scenario)
