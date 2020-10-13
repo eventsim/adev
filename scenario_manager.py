@@ -5,7 +5,6 @@ class ScenarioManager(object):
 		if _path:
 			self.load(_path)
 
-
 	def load(self, _path):
 		self.scenario_path = _path
 
@@ -17,23 +16,24 @@ class ScenarioManager(object):
 		self.scenario = {'sceVersion': 'sce/v1',\
 						 'sceType': 'EvacSim',\
 						 'scenario':{\
-						 	'regions':{\
-						 		0:{
-						 		'regionInfo'  :{\
-						 			'regionSize':[5, 5],\
-						 			'entry_points':{0:[4, 2]},\
-						 			'exit_points':{0:[0, 4]},\
-						 			'exceptional_cells':{0:{'cell_type':'obstcle', 'cell_pos':[1, 1]}}
-						 			 }, \
-						 		'simModelInfo':{'modelName':'Region01','engineName':'sname','inst_time':0, 'dest_time':30} ,\
-						 		}},\
+						 	'regions':[\
+						 			{\
+							 			'rid':0,\
+							 			'regionInfo'  :{\
+							 			'regionSize':[5, 5],\
+							 			'entry_points':{0:[4, 2]},\
+							 			'exit_points':{0:[0, 4]},}, \
+							 			'modelName':'Region01',\
+							 			'engineName':'sname',\
+							 			'instance_time':0, \
+							 			'destroy_time':30,\
+						 			},\
+						 		],\
 						 	'agents':[\
 						 				{'region_id':0, 'agent_id':0, "agent_pos":[0, 0], "agent_type":"Normal"},\
 						 				{'region_id':0, 'agent_id':1, "agent_pos":[0, 0], "agent_type":"Normal"}
-						 				],\
-						 	'cell_types':{'obstcle':{'capacity':-1, 'congestion_mid':0.33, 'congestion_high':0.66},
-									 	'default':{'capacity':1, 'congestion_mid':0.33, 'congestion_high':0.66},}
-						 	}\
+						 			],\
+						 	},\
 						 }
 						 
 		return yaml.dump(self.scenario)
