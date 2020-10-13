@@ -7,6 +7,9 @@ class ScenarioManager(object):
 
 	def load(self, _path):
 		self.scenario_path = _path
+		with open(_path) as f:
+			self.scenario = yaml.load(f.read(), Loader=yaml.CLoader)
+			
 
 	def save(self):
 		with open(self.scenario_path, 'w') as f:
