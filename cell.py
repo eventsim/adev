@@ -64,3 +64,41 @@ class Cell(object):
 			return [self.agent_lst[0]]
 		else:
 			return self.agent_lst[0:int(self.opt.capacity/2)]
+
+class UniCell(object):
+	def __init__(self, ix, iy):
+		self.ix = ix
+		self.iy = iy
+		self.agent_lst = []
+		pass
+
+	def __repr__(self):
+		return f"{len(self.agent_lst)}"
+
+	def get_cell_idx(self):
+		return (self.ix, self.iy)
+
+	def plot(self):
+		return (f"Cell({self.ix}, {self.iy})")
+
+	def insert_agent(self, agent):
+		self.agent_lst.append(agent)
+		agent.register_cell(self.ix, self.iy)
+
+	def remove_agent(self, agent):
+		self.agent_lst.remove(agent)
+
+	def get_cell_status(self):
+		agent_cnt = len(self.agent_lst)
+
+		if self.agent_lst is None:
+			return 1
+		else:
+			return 0
+
+	def get_agents(self):
+		return self.agent_lst
+
+	def get_active_agents(self):
+		a_lst = list(filter(lambda x: x.is_schedule(), self.agent_lst))
+		return a_lst

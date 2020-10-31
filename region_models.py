@@ -69,6 +69,7 @@ class RegionModel(StructuralModel):
             rp.insert_input_port("agent_out")
             self.insert_internal_coupling(rrm, "agent_out", rp, "agent_out")
 
+'''
 class RegionManagerModel(BehaviorModelExecutor):
     def __init__(self, instance_time, destruct_time, name, engine_name, region):
         BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
@@ -113,7 +114,6 @@ class RegionManagerModel(BehaviorModelExecutor):
         msg = SysMessage(self.get_name(), "agent_out")
         #print(str(datetime.datetime.now()) + " Human Object:")
         msg.extend(agents_lst)
-#        self.update_state("SCHEDULE", 1)
 
         
         return msg
@@ -184,6 +184,108 @@ class RegionRouterModel(BehaviorModelExecutor):
                         pass
                     else:
                         self.region.update_agent((ix + nx, iy + ny), agent)
+
+            self.agents_to_process.clear()
+            return message_to_handle
+        else:
+            return None
+        
+    def int_trans(self):
+        if self._cur_state == "PROCESS":
+            self._cur_state = "IDLE"
+'''
+
+class RegionManagerModel(BehaviorModelExecutor):
+    def __init__(self, instance_time, destruct_time, name, engine_name, region):
+        BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
+
+        # Open CSV
+        self.init_state("SCHEDULE")
+        self.insert_state("IDLE", Infinite)
+        self.insert_state("PROCESS", 0)
+        self.insert_state("SCHEDULE", MODEL_TIME_REQ)
+
+        self.region = region
+
+        self.prev_state = "IDLE"
+        self.agents_to_process = []
+
+
+    def ext_trans(self,port, msg):
+        #print(port)
+        if port == "agent_in":
+            #self.prev_state = self._cur_state
+            self._cur_state = "PROCESS"
+            data = msg.retrieve()
+            self.agents_to_process.append((data[0], data[1]))
+        else:
+            port_num = int(re.search(r"\[(\w+)\]", port).group(1))
+            self._cur_state = "PROCESS"
+            data = msg.retrieve()
+            #print(self, data)
+            #for agent in data:
+            self.agents_to_process.append((self.region.get_entry_points()[port_num], data[0]))
+
+
+    def output(self):
+        if self.agents_to_process:
+            for agent_info in self.agents_to_process:
+                #print(agent_info)
+                self.region.add_agent(agent_info[0], agent_info[1])
+
+            self.agents_to_process.clear()
+
+        agents_lst = self.region.pre_execution()
+        if agents_lst:
+            msg = SysMessage(self.get_name(), "agent_out")
+            #print(str(datetime.datetime.now()) + " Human Object:")
+            msg.extend(agents_lst)
+
+            return msg
+        else:
+            return None
+        
+    def int_trans(self):
+        if self._cur_state == "PROCESS":
+            self._cur_state = "SCHEDULE"
+        elif self._cur_state == "SCHEDULE":
+            self._cur_state = "SCHEDULE"
+
+class RegionRouterModel(BehaviorModelExecutor):
+    def __init__(self, instance_time, destruct_time, name, engine_name, region):
+        BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
+
+        # Open CSV
+        self.init_state("IDLE")
+        self.insert_state("IDLE", Infinite)
+        self.insert_state("PROCESS", 0)
+
+        self.insert_input_port("active_agents")
+        #self.insert_output_port("agent_out")
+
+        self.region = region
+
+        self.agents_to_process = []
+
+    def ext_trans(self,port, msg):
+        if port == "active_agents":
+            self._cur_state = "PROCESS"
+            data = msg.retrieve()
+            self.agents_to_process.extend(data)            
+
+    def output(self):
+        if self.agents_to_process:
+            message_to_handle = []
+            self.region.execution()
+
+            exits = self.region.post_execution()
+
+            if exits:
+                for agent in exits:
+                    msg = SysMessage(self.get_name(), self.region.find_exit_port(agent.get_cell_idx()))
+                    #print(str(datetime.datetime.now()) + " Human Object:")
+                    msg.insert(agent)
+                    message_to_handle.append(msg)
 
             self.agents_to_process.clear()
             return message_to_handle
@@ -283,13 +385,13 @@ if REPORT_FLAG:
         def output(self):
             for _id, region in self.regions.items():
                 if REPORT_TO_CONSOLE:
-                    _content = self.generate_report_contents(_id, region.get_matrix().flatten(), True)
+                    _content = self.generate_report_contents(_id, region.get_matrix().flatten(), region.region_agents, True)
                     print(_content)
+                    #print(region.get_matrix())
                 if NETWORK_UI_FLAG:
                     _content = self.generate_report_contents(_id, region, False)
                     net_manager = NetworkManager()
                     net_manager.udp_send_string(NETWORK_HOST_ADDR, NETWORK_HOST_PORT, bytes(_content))
-                    #net_manager.tcp_send_string(_content)
 
             return None
             
@@ -297,10 +399,11 @@ if REPORT_FLAG:
             if self._cur_state == "REPORT":
                 self._cur_state = "REPORT"
 
-        def generate_report_contents(self, _id, _list, verbose_mode = True):
+        def generate_report_contents(self, _id, _list, agents, verbose_mode = True):
             contents = bytearray()
             if verbose_mode:
-                contents = f"periodic|sim_time:{self.engine.get_global_time()}|region_id:{_id}|region:{_list}"
+                str_lst = [agent.get_id() for agent in agents]
+                contents = f"periodic|sim_time:{self.engine.get_global_time()}|region_id:{_id}|region:{_list}|left:{str_lst}"
             else:
                 contents.append(ord('p'))
                 contents.extend(struct.pack("d", self.engine.get_global_time()))
