@@ -1,1 +1,1 @@
-__all__ = ['clock', 'cell', 'agent', 'region']
+__all__ = ['clock', 'cell', 'agent', 'region', 'building_model', 'region_manager', 'region_model', 'sceanrio_manager']
