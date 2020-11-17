@@ -10,6 +10,7 @@ class RegionManager(object):
 	def __init__(self):
 		self.regions = {}
 		self.connection_info = []
+		self.world_exits = []
 		pass
 
 	def add_region_to_building(self, region_id, region_size, default_cell_opt):
@@ -74,6 +75,10 @@ class UniRegionManager(RegionManager):
 	def add_exit_point_to_region(self, region_id, point_id, coord):
 		return self.regions[region_id].add_exit_points(point_id, coord)
 
+	def add_building_exit(self, region_id, point_id):
+		self.world_exits.append((region_id, point_id))
+		pass
+
 	def connect_region(self, from_id, exit_id, to_id, entry_id):
 		self.connection_info.append((from_id, exit_id, to_id, entry_id))
 
@@ -92,6 +97,11 @@ class UniRegionManager(RegionManager):
 									c[1], \
 									region_models[c[2]],\
 									c[3])
+
+		# Connect Building Exits
+		for c in self.world_exits:
+			building.connect_building_exit(region_models[c[0]], c[1])
+
 		if REPORT_FLAG:
 			from adev.region_models import RegionsReportModel
 			report = RegionsReportModel(instance_time, destruction_time, model_name, engine_name, self.regions)
