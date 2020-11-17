@@ -102,6 +102,9 @@ class UniRegionManager(RegionManager):
 		for c in self.world_exits:
 			building.connect_building_exit(region_models[c[0]], c[1])
 
+		# Add entire agents to collector
+		for _, region in self.regions.items():
+			building.configure_agents(region.get_agent_lst())
 		if REPORT_FLAG:
 			from adev.region_models import RegionsReportModel
 			report = RegionsReportModel(instance_time, destruction_time, model_name, engine_name, self.regions)

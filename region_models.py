@@ -283,7 +283,6 @@ class RegionRouterModel(BehaviorModelExecutor):
             if exits:
                 for agent in exits:
                     msg = SysMessage(self.get_name(), self.region.find_exit_port(agent.get_cell_idx()))
-                    #print(str(datetime.datetime.now()) + " Human Object:")
                     msg.insert(agent)
                     message_to_handle.append(msg)
 

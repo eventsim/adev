@@ -21,10 +21,22 @@ class CollectorModel(BehaviorModelExecutor):
 
         self.tot_agent_map = {}
         self.evac_agent_lst = []
+        self.early_exit = False
 
     def __del__(self):
-        print("AAAA")
-        pass
+    	if not self.early_exit:
+	        print(f"Simulation End Time:{SystemSimulator().get_engine(self.engine_name).get_global_time()}" )
+	        print(f"Total Agents:{len(self.tot_agent_map)+ len(self.evac_agent_lst)}, Evacuated:{len(self.evac_agent_lst)}, Survival Ratio:{float(len(self.evac_agent_lst)/(len(self.tot_agent_map)+ len(self.evac_agent_lst)))}")
+
+    def check_sim_end(self, aid):
+        if aid in self.tot_agent_map.keys():
+            self.evac_agent_lst.append(self.tot_agent_map[aid])
+            del self.tot_agent_map[aid]
+
+        if not bool(self.tot_agent_map):
+            return True
+        else:
+            return False
 
     def add_agent(self, agent):
     	self.tot_agent_map[agent.get_id()] = agent
@@ -33,11 +45,18 @@ class CollectorModel(BehaviorModelExecutor):
         if port == "agent_in":
             self._cur_state = "PROCESS"
             data = msg.retrieve()
-            self.agents_to_process.append((data[0], data[1]))
-            print("!!!!")
+            self.agents_to_process.append(data[0])
+            
 
     def output(self):
-        SystemSimulator().get_engine(self.engine_name).simulation_stop()
+        for agent in self.agents_to_process:
+            if self.check_sim_end(agent.get_id()):
+                self.early_exit = True
+                print(f"Simulation End Time:{SystemSimulator().get_engine(self.engine_name).get_global_time()}" )
+                print(f"Total Agents:{len(self.tot_agent_map)+ len(self.evac_agent_lst)}, Evacuated:{len(self.evac_agent_lst)} Survival Ratio:{float(len(self.evac_agent_lst)/(len(self.tot_agent_map)+ len(self.evac_agent_lst)))}")
+                SystemSimulator().get_engine(self.engine_name).simulation_stop()
+
+        self.agents_to_process.clear()
         return None
 
         

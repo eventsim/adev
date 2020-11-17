@@ -104,6 +104,9 @@ class Region(object):
 
 		return ba
 
+	def get_agent_lst(self):
+		return self.region_agents
+
 class CustomRegion(Region):
 	def __init__(self, region_id, width, height, cell_opt):
 		Region.__init__(self, region_id, width, height)

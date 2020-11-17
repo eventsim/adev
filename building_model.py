@@ -14,7 +14,11 @@ class BuildingModel(StructuralModel):
     	self.insert_internal_coupling(_from, f"agent_out[{exit_id}]", _to, f"agent_in[{entry_id}]")
 
     def connect_building_exit(self, _from, exit_id):
-    	if self.collector not in self.retrieve_models():
-    		self.insert_model(self.collector)
+        if self.collector not in self.retrieve_models():
+            self.insert_model(self.collector)
 
-    	self.connect_regions(_from, f"agent_out[{exit_id}]", self.collector, "agent_in")
+        self.insert_internal_coupling(_from, f"agent_out[{exit_id}]", self.collector, "agent_in")
+
+    def configure_agents(self, agent_lst):
+        for agent in agent_lst:
+            self.collector.add_agent(agent)
