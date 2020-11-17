@@ -385,11 +385,11 @@ if REPORT_FLAG:
         def output(self):
             for _id, region in self.regions.items():
                 if REPORT_TO_CONSOLE:
-                    _content = self.generate_report_contents(_id, region.get_matrix().flatten(), region.region_agents, True)
+                    _content = self.generate_report_contents(_id, region.get_matrix(), region.region_agents, True)
                     print(_content)
                     #print(region.get_matrix())
                 if NETWORK_UI_FLAG:
-                    _content = self.generate_report_contents(_id, region, False)
+                    _content = self.generate_report_contents(_id, region.get_matrix(), region.region_agents, False)
                     net_manager = NetworkManager()
                     net_manager.udp_send_string(NETWORK_HOST_ADDR, NETWORK_HOST_PORT, bytes(_content))
 
@@ -399,15 +399,18 @@ if REPORT_FLAG:
             if self._cur_state == "REPORT":
                 self._cur_state = "REPORT"
 
-        def generate_report_contents(self, _id, _list, agents, verbose_mode = True):
+        def generate_report_contents(self, _id, _region, agents, verbose_mode = True):
             contents = bytearray()
             if verbose_mode:
                 str_lst = [agent.get_id() for agent in agents]
-                contents = f"periodic|sim_time:{self.engine.get_global_time()}|region_id:{_id}|region:{_list}|left:{str_lst}"
+                contents = f"periodic|sim_time:{self.engine.get_global_time()}|region_id:{_id}|region:{_region.flatten()}|left:{str_lst}"
             else:
                 contents.append(ord('p'))
                 contents.extend(struct.pack("d", self.engine.get_global_time()))
                 contents.append(_id)
-                contents.extend(_list.packing())
+                contents.append(_region.shape[1])
+                contents.append(_region.shape[0])
+                for cell in _region.flatten():
+                    contents.append(len(cell.agent_lst))
             return contents
             
