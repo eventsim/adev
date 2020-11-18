@@ -105,6 +105,7 @@ class ScenarioManager(object):
 						 		'engineName':'sname',\
 					 			'instance_time':0, \
 					 			'destroy_time':30,\
+					 			'rand_seed':1,
 						 	}
 						 }
 						 

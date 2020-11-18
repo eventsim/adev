@@ -53,7 +53,7 @@ class CollectorModel(BehaviorModelExecutor):
             if self.check_sim_end(agent.get_id()):
                 self.early_exit = True
                 print(f"Simulation End Time:{SystemSimulator().get_engine(self.engine_name).get_global_time()}" )
-                print(f"Total Agents:{len(self.tot_agent_map)+ len(self.evac_agent_lst)}, Evacuated:{len(self.evac_agent_lst)} Survival Ratio:{float(len(self.evac_agent_lst)/(len(self.tot_agent_map)+ len(self.evac_agent_lst)))}")
+                print(f"Total Agents:{len(self.tot_agent_map)+ len(self.evac_agent_lst)}, Evacuated:{len(self.evac_agent_lst)}, Survival Ratio:{float(len(self.evac_agent_lst)/(len(self.tot_agent_map)+ len(self.evac_agent_lst)))}")
                 SystemSimulator().get_engine(self.engine_name).simulation_stop()
 
         self.agents_to_process.clear()
